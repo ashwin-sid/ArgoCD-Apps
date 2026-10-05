@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.applicationName }}-ping
+spec:
+  replicas: {{ .Values.ping.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.applicationName }}-ping
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.applicationName }}-ping
+        customer: {{ .Values.customerId }}
+    spec:
+      containers:
+        - name: ping
+          image: {{ .Values.ping.image }}
+          args:
+            - "-listen=:8080"
+            - "-text={{ .Values.applicationName }}-ping"
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http

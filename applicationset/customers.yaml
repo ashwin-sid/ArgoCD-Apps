@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: customer-appy
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+  generators:
+    - git:
+        repoURL: https://github.com/ashwin-sid/ArgoCD-Apps.git
+        revision: main
+        files:
+          - path: "customers/*.yaml"
+  template:
+    metadata:
+      name: "{{ .applicationName }}"
+      labels:
+        customer: "{{ .customerId }}"
+        application: appy
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/ashwin-sid/ArgoCD-Apps.git
+        targetRevision: main
+        path: charts/appy
+        helm:
+          valuesObject:
+            customerId: "{{ .customerId }}"
+            applicationName: "{{ .applicationName }}"
+      destination:
+        name: homelab-rke2
+        namespace: "{{ .namespace }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+        managedNamespaceMetadata:
+          labels:
+            customer: "{{ .customerId }}"
+            application: appy
+            managed-by: argocd

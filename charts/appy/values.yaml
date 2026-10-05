@@ -1,0 +1,10 @@
+customerId: ""
+applicationName: ""
+
+nginx:
+  image: nginx:1.27
+  replicas: 1
+
+ping:
+  image: hashicorp/http-echo:1.0
+  replicas: 1
